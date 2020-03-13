@@ -18,29 +18,31 @@ $driveLetter = $newEvent.SourceEventArgs.NewEvent.DriveName
 $driveLabel = ([wmi]"Win32_LogicalDisk='$driveLetter'").VolumeName
 write-host (get-date -format s) " Drive name = " $driveLetter
 write-host (get-date -format s) " Drive label = " $driveLabel
-$yv = Test-path "$driveLetter/WinddowsUpdater/"
+$yv = python viruscheck.py $driveLetter 
+Write-Output $yv
 
-if ($yv){
+if ($yv -eq "True"){
 $oReturn=[System.Windows.Forms.MessageBox]::Show("A Virus has been detected`nWould you like to remove it","Virus Detected!!!",[System.Windows.Forms.MessageBoxButtons]::OKCancel)
-
-    switch ($oReturn){
-        "OK" {
-            write-host "You pressed OK"
-            cp "$home\Documents\bin\Bcleaner\bin\usbantivirusV1.3.exe" "$driveLetter\"
-            cd $driveletter
-            start "$driveletter\usbantivirusV1.3.exe"
-            del usbantivirusV1.3.exe
-            cd C:\
-            cd $home
-            echo done
-        } 
-        "Cancel" {
-            write-host "You pressed Cancel"
-            [System.Windows.Forms.Messagebox]::Show("Sucks for you")
-            # Enter some code
-        } 
-    }
 }
+switch ($oReturn){
+    "OK" {
+        write-host "You pressed OK"
+        Copy-Item "$home\Documents\Programming\bin\usbantivirus.exe" "$driveLetter\"
+        Set-Location $driveletter
+        Start-Process "$driveletter\usbantivirus.exe"
+        Set-Location C:\
+        Set-Location $home
+        Write-Output done
+    } 
+    "Cancel" {
+        write-host "You pressed Cancel"
+        [System.Windows.Forms.Messagebox]::Show("Sucks for you")
+        # Enter some code
+    } 
+}
+# Execute process if drive matches specified condition(s)
+# write-host (get-date -format s) " Starting task in 3 seconds..."
+# start-sleep -seconds 3
 }
 
 Remove-Event -SourceIdentifier volumeChange

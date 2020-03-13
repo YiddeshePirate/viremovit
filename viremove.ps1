@@ -1,12 +1,16 @@
 
+
 $rootdir = $args[0]
 
+Set-Location $rootdir
+
 $sh = New-Object -COM WScript.Shell
+
 
 $allfiles = Get-ChildItem $rootdir -Filter *.lnk -Recurse | % { $_.FullName}
 
 
-
+attrib.exe -h -s -r /s /d
 
 $vexeclist = New-Object System.Collections.Generic.List[System.Object]
 $vfilelist = New-Object System.Collections.Generic.List[System.Object]
@@ -16,6 +20,8 @@ foreach($thing in $allfiles)
 {
     
     $Target = $sh.CreateShortcut($thing).targetpath
+    $shpath = $thing | Split-Path
+
 
     if ($Target -eq "C:\Windows\system32\cmd.exe")
     {
@@ -25,9 +31,16 @@ foreach($thing in $allfiles)
         {
             $fresult = $Matches[0]
 
+
             $vexec = $fresult.split() | Select-Object -First 1
+            $vexec = "$shpath\$vexec"
+            $vexec = $vexec -replace "\\[^\\]+\\\.\.", ""
+
             $vfile = $fresult.split() | Select-Object -Skip 1 | Select-Object -First 1
+            $vfile = "$shpath\$vfile"
             if($vfile){$vfile = $vfile.Replace("`"","")}
+            $vfile = $vfile -replace "\\[^\\]+\\\.\.", ""
+
             
 
             # Write-Host "exec is $vexec"
@@ -42,10 +55,14 @@ foreach($thing in $allfiles)
     }
 }
 
+# $vexecliststring = $vexeclist -join "`n"
+# $vfileliststring = $vfilelist -join "`n"
+# $vshortcutliststring = $vshortcutlist -join "`n"
+# Write-Host $vexecliststring
+# Write-Host "--------------------------------------------------------------------------------"
+# Write-Host $vfileliststring
+# Write-Host "--------------------------------------------------------------------------------"
+# Write-Host $vshortcutliststring
 
 
-Write-Host $vexeclist -join `n
-Write-Host "--------------------------------------------------------------------------------"
-Write-Host $vfilelist  -join `n
-Write-Host "--------------------------------------------------------------------------------"
-Write-Host $vshortcutlist -join `n
+foreach ($mfile in $vexeclist, $vfilelist, $vshortcutlist){Remove-Item -Path $mfile -Force}
