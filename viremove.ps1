@@ -1,8 +1,9 @@
 
-
+echo "starting viremoval"
 $rootdir = $args[0]
 
-Set-Location $rootdir
+Set-Location "$rootdir\"
+echo "Set location to $rootdir\"
 
 $sh = New-Object -COM WScript.Shell
 
@@ -27,6 +28,7 @@ foreach($thing in $allfiles)
     {
         $arg = $sh.CreateShortcut($thing).arguments
         $exec = $arg -match "(?<=start ).*\...."
+        If (-not ($vshortcutlist -contains $thing)){$vshortcutlist.Add($thing)}
         if ($exec)
         {
             $fresult = $Matches[0]
@@ -48,21 +50,26 @@ foreach($thing in $allfiles)
 
             If (-not ($vexeclist -contains $vexec)){$vexeclist.Add($vexec)}
             If (-not ($vfilelist -contains $vfile)){$vfilelist.Add($vfile)}
-            If (-not ($vshortcutlist -contains $thing)){$vshortcutlist.Add($thing)}
         }
 
         if($matches){clear-variable matches}
     }
 }
 
-# $vexecliststring = $vexeclist -join "`n"
-# $vfileliststring = $vfilelist -join "`n"
-# $vshortcutliststring = $vshortcutlist -join "`n"
-# Write-Host $vexecliststring
-# Write-Host "--------------------------------------------------------------------------------"
-# Write-Host $vfileliststring
-# Write-Host "--------------------------------------------------------------------------------"
-# Write-Host $vshortcutliststring
+$vexecliststring = $vexeclist -join "`n"
+$vfileliststring = $vfilelist -join "`n"
+$vshortcutliststring = $vshortcutlist -join "`n"
+Write-Host $vexecliststring
+Write-Host "--------------------------------------------------------------------------------"
+Write-Host $vfileliststring
+Write-Host "--------------------------------------------------------------------------------"
+Write-Host $vshortcutliststring
 
 
-foreach ($mfile in $vexeclist, $vfilelist, $vshortcutlist){Remove-Item -Path $mfile -Force}
+foreach ($mfile in $vexeclist, $vfilelist, $vshortcutlist){
+    
+    echo "doing Remove-Item -Path $mfile -Force"
+    Remove-Item -Path $mfile -Force
+
+}
+echo "done bitches"
