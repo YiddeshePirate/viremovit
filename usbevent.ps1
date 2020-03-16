@@ -1,7 +1,9 @@
 [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
 Register-WmiEvent -Class win32_VolumeChangeEvent -SourceIdentifier volumeChange
 write-host (get-date -format s) " Beginning script..."
-$env:Path += ";C:\Users\eliez\Documents\Programming\Batch\viremovit"
+$env:path += ";$env:userprofile\Documents\bin\"
+
+
 do{
 $newEvent = Wait-Event -SourceIdentifier volumeChange
 $eventType = $newEvent.SourceEventArgs.NewEvent.EventType
